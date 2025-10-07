@@ -46,6 +46,12 @@ let package = Package(
                 .product(name: "NIOHTTP1", package: "swift-nio")
             ]
         ),
+        // SDLKit Canvas implementation (optional)
+        .target(
+            name: "LayoutKitSDLCanvas",
+            dependencies: ["LayoutKit"],
+            path: "Sources/LayoutKitSDLCanvas"
+        ),
         // Small server executable for local testing
         .executableTarget(
             name: "LayoutKitNIOServer",

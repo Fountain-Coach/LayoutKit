@@ -109,6 +109,25 @@ SVG Snapshots
   let svg = canvas.svgString()
   ```
 
+SDLKit Canvas
+- Target: `LayoutKitSDLCanvas` provides a concrete `Canvas` backed by SDLKit.
+- Usage (preview; no-op draw methods until wired):
+  ```swift
+  import LayoutKit
+  import LayoutKitSDLCanvas
+
+  let canvas = SDLKitCanvas()
+  SceneRenderer.render(scene, on: canvas)
+  ```
+- Enabling full SDLKit integration:
+  - This target conditionally imports `SDLKit` with `#if canImport(SDLKit)`.
+  - To wire real drawing, add `SDLKit` to your workspace/package and implement the TODOs in `SDLKitCanvas` (tessellation, glyphs, images, clip).
+  - We will upstream a complete mapping once SDLKit’s 2D primitives are finalized.
+
+Badges
+- CI: LayoutKit builds + OpenAPI codegen on every push (see Actions).
+- Docs: OpenAPI HTML published via GitHub Pages (workflow `Publish API Docs`).
+
 Teatro Wiring (outline)
 - Add a new renderer plugin (e.g., `TeatroLayoutKitRenderer`) that:
   - Accepts a high‑level request (e.g., `renderScorePage`).
