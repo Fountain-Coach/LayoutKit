@@ -27,10 +27,11 @@ jobs:
       - name: Swift version
         run: swift --version
 
+      - name: Install Spectral
+        run: npm install -g @stoplight/spectral-cli
+
       - name: Lint OpenAPI (Spectral)
-        uses: stoplightio/spectral-action@v0.8.13
-        with:
-          file_glob: openapi/**/*.yaml
+        run: spectral lint openapi/**/*.yaml
 
       - name: Build OpenAPI docs (ReDocly)
         run: |
@@ -49,6 +50,17 @@ jobs:
 
       - name: Test
         run: swift test -q
+
+      - name: Smoke test NIO server
+        run: |
+          swift run -c release LayoutKitNIOServer &
+          SRV=$!
+          sleep 2
+          curl -sS -X GET http://127.0.0.1:8080/health -o /dev/null -w "%{http_code}\n" | grep -q 200
+          curl -sS -X POST http://127.0.0.1:8080/layout/page \
+            -H 'accept: application/json' -H 'content-type: application/json' \
+            -d '{"widthPt":200,"heightPt":100,"margins":{"top":10,"left":10,"right":10,"bottom":10}}' | jq 'has("commands")' | grep -q true
+          kill $SRV || true
 
       - name: Emit generated sources summary
         if: always()

@@ -29,8 +29,16 @@ public struct Style: Sendable, Codable, Equatable {
     public init(stroke: String? = "#000", fill: String? = nil, lineWidth: Double = 1) { self.stroke = stroke; self.fill = fill; self.lineWidth = lineWidth }
 }
 
-public struct Glyph: Sendable, Codable, Equatable { public var codePoint: UInt32; public var dx: Double; public var dy: Double }
-public struct TextRun: Sendable, Codable, Equatable { public var fontFamily: String; public var fontSizeSP: Double; public var baseline: String; public var glyphs: [Glyph] }
+public struct Glyph: Sendable, Codable, Equatable {
+    public var codePoint: UInt32; public var dx: Double; public var dy: Double
+    public init(codePoint: UInt32, dx: Double, dy: Double) { self.codePoint = codePoint; self.dx = dx; self.dy = dy }
+}
+public struct TextRun: Sendable, Codable, Equatable {
+    public var fontFamily: String; public var fontSizeSP: Double; public var baseline: String; public var glyphs: [Glyph]
+    public init(fontFamily: String, fontSizeSP: Double, baseline: String, glyphs: [Glyph]) {
+        self.fontFamily = fontFamily; self.fontSizeSP = fontSizeSP; self.baseline = baseline; self.glyphs = glyphs
+    }
+}
 
 public enum Command: Sendable, Codable, Equatable {
     case save
@@ -40,7 +48,9 @@ public enum Command: Sendable, Codable, Equatable {
     case drawText(run: TextRun)
 }
 
-public struct Scene: Sendable, Codable, Equatable { public var page: PageSpec; public var commands: [Command] }
+public struct Scene: Sendable, Codable, Equatable { public var page: PageSpec; public var commands: [Command]
+    public init(page: PageSpec, commands: [Command]) { self.page = page; self.commands = commands }
+}
 
 // MARK: - Canvas protocol (to be implemented by SDLKit, CoreGraphics, SVG, PDF)
 

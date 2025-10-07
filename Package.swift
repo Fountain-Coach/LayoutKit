@@ -40,11 +40,17 @@ let package = Package(
             name: "LayoutKitNIO",
             dependencies: [
                 "LayoutKit",
+                "LayoutKitBridge",
                 "LayoutKitAPI",
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "NIOHTTP1", package: "swift-nio")
             ]
+        ),
+        // Bridge between LayoutKit core and OpenAPI types
+        .target(
+            name: "LayoutKitBridge",
+            dependencies: ["LayoutKit", "LayoutKitAPI"]
         ),
         // SDLKit Canvas implementation (optional)
         .target(
