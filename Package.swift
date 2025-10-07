@@ -8,14 +8,17 @@ let package = Package(
     platforms: [ .macOS(.v13) ],
     products: [
         .library(name: "LayoutKit", targets: ["LayoutKit"]),
-        .library(name: "LayoutKitAPI", targets: ["LayoutKitAPI"]) // OpenAPI‑generated client/server types
+        .library(name: "LayoutKitAPI", targets: ["LayoutKitAPI"]), // OpenAPI‑generated client/server types
+        .library(name: "LayoutKitNIO", targets: ["LayoutKitNIO"]) // Pure SwiftNIO server transport + default handlers
     ],
     dependencies: [
         // Apple Swift OpenAPI Generator (plugin)
         .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.8.0"),
         // OpenAPI runtime + URLSession transport
         .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.7.0"),
-        .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.0")
+        .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.0"),
+        // SwiftNIO (pure NIO server)
+        .package(url: "https://github.com/apple/swift-nio.git", from: "2.84.0")
     ],
     targets: [
         // Core engine and types
@@ -29,6 +32,17 @@ let package = Package(
             ],
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator")
+            ]
+        ),
+        // Pure NIO transport + default handlers delegating to LayoutEngine
+        .target(
+            name: "LayoutKitNIO",
+            dependencies: [
+                "LayoutKit",
+                "LayoutKitAPI",
+                .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
+                .product(name: "NIO", package: "swift-nio"),
+                .product(name: "NIOHTTP1", package: "swift-nio")
             ]
         ),
         .testTarget(name: "LayoutKitTests", dependencies: ["LayoutKit"]) 
