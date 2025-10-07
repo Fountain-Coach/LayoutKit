@@ -21,6 +21,11 @@ jobs:
             ~/Library/Developer/Xcode/DerivedData
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
 
+      - name: Set up Swift 6.1.0
+        uses: maxim-lobanov/setup-swift@v1
+        with:
+          swift-version: "6.1.0"
+
       - name: Swift version
         run: swift --version
 
@@ -35,4 +40,3 @@ jobs:
         run: |
           echo "Generated files:" || true
           find .build/plugins/outputs -name '*.swift' -maxdepth 6 | sed 's#^# - #'
-
