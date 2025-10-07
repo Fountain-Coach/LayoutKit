@@ -95,6 +95,20 @@ Teatro Wiring (outline)
   - Paints via SDLKitCanvas (for UI) or emits SVG/PDF.
 - During local development, depend on LayoutKit via a path dependency; switch to the Git URL when the repo is public.
 
+Pure SwiftNIO Server
+- Target `LayoutKitNIO` provides a minimal `ServerTransport` implementation using `swift-nio` (HTTP/1.1).
+- Usage (server):
+  ```swift
+  import LayoutKitAPI
+  import LayoutKitNIO
+
+  let transport = NIOHTTPServerTransport(host: "127.0.0.1", port: 8080)
+  let handlers = DefaultHandlers() // delegates to LayoutEngine
+  try handlers.registerHandlers(on: transport)
+  try await transport.start()
+  ```
+- The transport supports OpenAPI path templates (e.g., `/file/{name}.zip`) and passes path params in `ServerRequestMetadata`.
+
 Repository Layout
 - `Sources/LayoutKit/` — Swift types, engine, and minimal SVG canvas.
 - `openapi/layoutkit.yaml` — OpenAPI 3.1 for the API (future generator/service optional).
