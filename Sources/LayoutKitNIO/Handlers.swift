@@ -8,14 +8,25 @@ import LayoutKitAPI
 public struct DefaultHandlers: APIProtocol, Sendable {
     public init() {}
 
-    public func post_sol_layout_sol_page(
-        _ input: Operations.post_sol_layout_sol_page.Input
-    ) async throws -> Operations.post_sol_layout_sol_page.Output {
-        // Extract PageSpec from generated types
+    // GET /health
+    public func getHealth(_ input: Operations.getHealth.Input) async throws -> Operations.getHealth.Output {
+        _ = input
+        return .ok
+    }
+
+    // GET /version
+    public func getVersion(_ input: Operations.getVersion.Input) async throws -> Operations.getVersion.Output {
+        _ = input
+        let payload = Operations.getVersion.Output.Ok.Body.jsonPayload(api: "layoutkit-0.1.0", scene: "scene-v1")
+        return .ok(.init(body: .json(payload)))
+    }
+
+    // POST /layout/page
+    public func layoutPage(
+        _ input: Operations.layoutPage.Input
+    ) async throws -> Operations.layoutPage.Output {
         let pageIn: Components.Schemas.PageSpec
-        switch input.body {
-        case .json(let v): pageIn = v
-        }
+        switch input.body { case .json(let v): pageIn = v }
         let margins = pageIn.margins.map { Insets(top: $0.top, left: $0.left, right: $0.right, bottom: $0.bottom) } ?? Insets(top: 48, left: 36, right: 36, bottom: 48)
         let page = PageSpec(widthPt: pageIn.widthPt, heightPt: pageIn.heightPt, margins: margins)
         let scene = LayoutEngine.layout(page: page)
@@ -25,12 +36,22 @@ public struct DefaultHandlers: APIProtocol, Sendable {
 
     // Map core Scene -> generated Components.Schemas.Scene
     private func toAPI(_ scene: LayoutKit.Scene) -> Components.Schemas.Scene {
-        // For now, return only page metadata; commands can be mapped later.
         let apiPage = Components.Schemas.PageSpec(
             widthPt: scene.page.widthPt,
             heightPt: scene.page.heightPt,
-            margins: .init(top: scene.page.margins.top, left: scene.page.margins.left, right: scene.page.margins.right, bottom: scene.page.margins.bottom)
+            margins: .init(top: scene.page.margins.top, left: scene.page.margins.left, right: scene.page.margins.right, bottom: scene.page.margins.bottom),
+            units: .pt,
+            yUp: true
         )
-        return .init(page: apiPage, commands: [])
+        return .init(
+            page: apiPage,
+            units: .pt,
+            yUp: true,
+            version: .scene_hyphen_v1,
+            bounds: nil,
+            snapHints: nil,
+            resources: nil,
+            commands: []
+        )
     }
 }
