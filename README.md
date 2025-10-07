@@ -56,6 +56,37 @@ Getting Started
   let svg = canvas.svgString()
   ```
 
+OpenAPI Generator (Apple)
+- Codegen target: `LayoutKitAPI` uses Apple's Swift OpenAPI Generator plugin.
+- Document: `openapi/layoutkit.yaml` (canonical). Symlinked as `Sources/LayoutKitAPI/openapi.yaml` for the plugin.
+- Config: `Sources/LayoutKitAPI/openapi-generator-config.yaml` generates public `types`, `client`, and `server` stubs.
+- CI: `.github/workflows/ci.yml` builds and tests; generation runs on build and is not checked in.
+
+Client usage (URLSession transport)
+```swift
+import LayoutKitAPI
+import OpenAPIURLSession
+
+let transport = URLSessionTransport()
+let client = Client(serverURL: URL(string: "http://127.0.0.1:8080")!, transport: transport)
+
+// Example call (matches /layout/page in the spec)
+let page = Components.Schemas.PageSpec(widthPt: 595, heightPt: 842, margins: .init(top: 48, left: 36, right: 36, bottom: 48))
+let response = try await client.post_layout_page(.init(body: .json(page)))
+let scene: Components.Schemas.Scene
+switch response {
+case .ok(let ok): scene = try ok.ok.body.json
+default: throw SomeError()
+}
+```
+
+Server stubs
+- `LayoutKitAPI` also includes generated server interfaces. Adopt a server transport (e.g., Vapor) in a separate package and implement the handlers by delegating to `LayoutEngine`.
+
+Versioning
+- Track breaking changes in `openapi/layoutkit.yaml` via the `info.version` field.
+- Keep spec and engine in lockstep; CI ensures generator compatibility.
+
 Teatro Wiring (outline)
 - Add a new renderer plugin (e.g., `TeatroLayoutKitRenderer`) that:
   - Accepts a high‑level request (e.g., `renderScorePage`).
@@ -72,4 +103,3 @@ Repository Layout
 
 License
 - Copyright (c) Fountain‑Coach.
-
