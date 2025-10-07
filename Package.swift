@@ -9,7 +9,8 @@ let package = Package(
     products: [
         .library(name: "LayoutKit", targets: ["LayoutKit"]),
         .library(name: "LayoutKitAPI", targets: ["LayoutKitAPI"]), // OpenAPI‑generated client/server types
-        .library(name: "LayoutKitNIO", targets: ["LayoutKitNIO"]) // Pure SwiftNIO server transport + default handlers
+        .library(name: "LayoutKitNIO", targets: ["LayoutKitNIO"]), // Pure SwiftNIO server transport + default handlers
+        .executable(name: "LayoutKitNIOServer", targets: ["LayoutKitNIOServer"]) // Local NIO server for manual testing
     ],
     dependencies: [
         // Apple Swift OpenAPI Generator (plugin)
@@ -43,6 +44,14 @@ let package = Package(
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "NIO", package: "swift-nio"),
                 .product(name: "NIOHTTP1", package: "swift-nio")
+            ]
+        ),
+        // Small server executable for local testing
+        .executableTarget(
+            name: "LayoutKitNIOServer",
+            dependencies: [
+                "LayoutKitNIO",
+                "LayoutKitAPI"
             ]
         ),
         .testTarget(name: "LayoutKitTests", dependencies: ["LayoutKit"]) 

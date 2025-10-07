@@ -87,6 +87,28 @@ Versioning
 - Track breaking changes in `openapi/layoutkit.yaml` via the `info.version` field.
 - Keep spec and engine in lockstep; CI ensures generator compatibility.
 
+Server Executable (NIO)
+- Run the local NIO server executable for manual testing:
+  - Build: `swift build -c release -Xswiftc -parse-as-library`
+  - Run: `swift run LayoutKitNIOServer` (env: `LAYOUTKIT_HOST`, `LAYOUTKIT_PORT` to override)
+  - Test the endpoint:
+    ```bash
+    curl -sS -X POST http://127.0.0.1:8080/layout/page \
+      -H 'accept: application/json' \
+      -H 'content-type: application/json' \
+      -d '{"widthPt":595,"heightPt":842,"margins":{"top":48,"left":36,"right":36,"bottom":48}}' | jq
+    ```
+
+SVG Snapshots
+- Use `SVGCanvas` to render a `Scene` for snapshot tests / previews:
+  ```swift
+  let page = PageSpec(widthPt: 200, heightPt: 100)
+  let scene = LayoutEngine.layout(page: page)
+  let canvas = SVGCanvas(width: page.widthPt, height: page.heightPt)
+  SceneRenderer.render(scene, on: canvas)
+  let svg = canvas.svgString()
+  ```
+
 Teatro Wiring (outline)
 - Add a new renderer plugin (e.g., `TeatroLayoutKitRenderer`) that:
   - Accepts a high‑level request (e.g., `renderScorePage`).
