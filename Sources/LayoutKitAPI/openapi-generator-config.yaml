@@ -1,0 +1,9 @@
+input: ../../openapi/layoutkit.yaml
+accessModifier: public
+generate:
+  - types
+  - client
+  - server
+diagnostics:
+  - notice
+
