@@ -12,7 +12,12 @@ public struct PageSpec: Sendable, Codable, Equatable {
     }
 }
 
-public struct Insets: Sendable, Codable, Equatable { public var top: Double, left: Double, right: Double, bottom: Double }
+public struct Insets: Sendable, Codable, Equatable {
+    public var top: Double, left: Double, right: Double, bottom: Double
+    public init(top: Double, left: Double, right: Double, bottom: Double) {
+        self.top = top; self.left = left; self.right = right; self.bottom = bottom
+    }
+}
 
 public enum PathSegment: Sendable, Codable, Equatable { case move(x: Double, y: Double), line(x: Double, y: Double), quad(cx: Double, cy: Double, x: Double, y: Double), cubic(c1x: Double, c1y: Double, c2x: Double, c2y: Double, x: Double, y: Double), close }
 public struct Path: Sendable, Codable, Equatable { public var segments: [PathSegment]; public init(_ segments: [PathSegment]) { self.segments = segments } }
