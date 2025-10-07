@@ -1,0 +1,126 @@
+openapi: 3.1.0
+info:
+  title: LayoutKit API
+  version: 0.1.0
+  description: Spec-first 2D page layout and rendering API (page in pt, engraving in SP).
+paths:
+  /layout/page:
+    post:
+      summary: Compute page layout tree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageSpec'
+      responses:
+        '200':
+          description: Page scene
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scene'
+components:
+  schemas:
+    PageSpec:
+      type: object
+      properties:
+        widthPt: { type: number }
+        heightPt: { type: number }
+        margins:
+          $ref: '#/components/schemas/Insets'
+      required: [widthPt, heightPt]
+    Insets:
+      type: object
+      properties:
+        top: { type: number }
+        left: { type: number }
+        right: { type: number }
+        bottom: { type: number }
+      required: [top, left, right, bottom]
+    Scene:
+      type: object
+      properties:
+        page: { $ref: '#/components/schemas/PageSpec' }
+        commands:
+          type: array
+          items: { $ref: '#/components/schemas/Command' }
+      required: [page, commands]
+    Command:
+      oneOf:
+        - type: object
+          properties:
+            save: { type: object }
+        - type: object
+          properties:
+            restore: { type: object }
+        - type: object
+          properties:
+            transform:
+              type: object
+              properties:
+                a: { type: number }
+                b: { type: number }
+                c: { type: number }
+                d: { type: number }
+                e: { type: number }
+                f: { type: number }
+              required: [a,b,c,d,e,f]
+        - type: object
+          properties:
+            drawPath:
+              type: object
+              properties:
+                path: { $ref: '#/components/schemas/Path' }
+                style: { $ref: '#/components/schemas/Style' }
+              required: [path]
+        - type: object
+          properties:
+            drawText:
+              type: object
+              properties:
+                run: { $ref: '#/components/schemas/TextRun' }
+              required: [run]
+    Path:
+      type: object
+      properties:
+        segments:
+          type: array
+          items: { $ref: '#/components/schemas/PathSegment' }
+      required: [segments]
+    PathSegment:
+      oneOf:
+        - type: object
+          properties: { move: { type: array, items: { type: number }, minItems: 2, maxItems: 2 } }
+        - type: object
+          properties: { line: { type: array, items: { type: number }, minItems: 2, maxItems: 2 } }
+        - type: object
+          properties: { quad: { type: array, items: { type: number }, minItems: 4, maxItems: 4 } }
+        - type: object
+          properties: { cubic: { type: array, items: { type: number }, minItems: 6, maxItems: 6 } }
+        - type: object
+          properties: { close: { type: object } }
+    Style:
+      type: object
+      properties:
+        stroke: { type: string }
+        fill: { type: string }
+        lineWidth: { type: number }
+    TextRun:
+      type: object
+      properties:
+        fontFamily: { type: string }
+        fontSizeSP: { type: number }
+        baseline: { type: string }
+        glyphs:
+          type: array
+          items: { $ref: '#/components/schemas/Glyph' }
+      required: [fontFamily, fontSizeSP, glyphs]
+    Glyph:
+      type: object
+      properties:
+        codePoint: { type: integer }
+        dx: { type: number }
+        dy: { type: number }
+      required: [codePoint]
+

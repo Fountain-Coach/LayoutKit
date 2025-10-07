@@ -1,0 +1,75 @@
+LayoutKit — Spec‑First Page and Scene Layout
+
+Overview
+- Spec‑first, deterministic layout engine: “layout as functions”.
+- Inputs: `PageSpec`, `SystemSpec` and symbol/text runs in SP (staff‑space) units.
+- Output: portable vector display list (`Scene`) in page coordinates (points, y‑up).
+- Painting: A `Canvas` abstraction renders `Scene` to backends (SDLKit, CoreGraphics, SVG, PDF).
+
+Clean Mapping
+- LayoutKit (this package)
+  - What: OpenAPI 3.1 for PageSpec, Scene, Commands; Swift types; in‑process engine.
+  - Role: Deterministic page/scene generator; returns a portable `Scene`.
+  - Where: In‑process Swift (generated types optional); can also be hosted as a local service.
+- SDLKit (separate, we own)
+  - What: Cross‑platform canvas/runtime.
+  - Role: Primary `Canvas` backend for LayoutKit (2D first‑class). On Linux/Windows uses SDL + FreeType + HarfBuzz; on macOS maps to CoreGraphics/CoreText.
+  - Delivers: On‑screen vector preview, PNG/SVG/PDF rasterization.
+- ScoreKit
+  - What: Music model + RulesKit engraving policies (beaming, slurs, spacing).
+  - Role: Translator to LayoutKit requests. Produces `PageSpec`/`SystemSpec` + symbol runs (SMuFL) in SP; LayoutKit builds `Scene` in page points.
+- Teatro
+  - Host/integrator with plugin registry, CLI, GUI preview, and snapshot culture.
+  - Renderer plugins call LayoutKit to obtain `Scene`, then paint via chosen backend (SVG/PDF emitters, SDLKitCanvas, CoreGraphicsCanvas).
+
+Data Flow (Teatro in the middle)
+1. ScoreKit model (+ RulesKit) → `PageSpec`/`SystemSpec` (+ symbols in SP).
+2. Teatro renderer plugin → calls LayoutKit to get a `Scene` (vector display list).
+3. `Scene` → painted by selected `Canvas` (SDLKitCanvas for UI; SVG/PDF emitters for artifacts; CoreGraphicsCanvas for macOS previews).
+4. CLI/GUI/Apps → built on Teatro keep a consistent UX; Compare app can show ScoreKit→LayoutKit vs Lily side‑by‑side.
+
+Conventions
+- Page coords: points (pt, 72 dpi), y‑up internally. Flip only in painters that require y‑down.
+- Staff coords: SP (staff‑space units). ScoreKit/RulesKit talk SP; LayoutKit converts to absolute page coords.
+- Pixel snapping: `Scene` carries stroke widths; painters snap to half‑pixels for crisp lines.
+- Determinism: `Scene` JSON is canonical; SVG snapshots are CI‑diffable.
+
+Immediate Steps (scaffold)
+- Spec: `openapi/layoutkit.yaml` (done). See `COORDINATES.md` for pt vs SP and transforms.
+- In‑process engine: `LayoutEngine.layout(page:)` builds a minimal `Scene` (page/margins and groups).
+- Canvas: `SVGCanvas` renders a `Scene` to SVG for snapshots; SDLKit/CoreGraphics backends live in their respective repos.
+- Teatro integration: Add a renderer plugin that depends on LayoutKit and emits SVG/PDF/PNG using the chosen Canvas.
+
+Getting Started
+- SwiftPM
+  - Add to `Package.swift` dependencies: `.package(url: "https://github.com/Fountain-Coach/LayoutKit.git", branch: "main")`
+  - Target dependency: `.product(name: "LayoutKit", package: "LayoutKit")`
+- Sample
+  ```swift
+  import LayoutKit
+
+  let page = PageSpec(widthPt: 595.0, heightPt: 842.0) // A4
+  let scene = LayoutEngine.layout(page: page)
+
+  let canvas = SVGCanvas(width: page.widthPt, height: page.heightPt)
+  SceneRenderer.render(scene, on: canvas)
+  let svg = canvas.svgString()
+  ```
+
+Teatro Wiring (outline)
+- Add a new renderer plugin (e.g., `TeatroLayoutKitRenderer`) that:
+  - Accepts a high‑level request (e.g., `renderScorePage`).
+  - Calls ScoreKit to produce `PageSpec`/symbol runs.
+  - Calls LayoutKit to build a `Scene`.
+  - Paints via SDLKitCanvas (for UI) or emits SVG/PDF.
+- During local development, depend on LayoutKit via a path dependency; switch to the Git URL when the repo is public.
+
+Repository Layout
+- `Sources/LayoutKit/` — Swift types, engine, and minimal SVG canvas.
+- `openapi/layoutkit.yaml` — OpenAPI 3.1 for the API (future generator/service optional).
+- `COORDINATES.md` — Units, transforms, snapping.
+- `Tests/` — Determinism and smoke tests.
+
+License
+- Copyright (c) Fountain‑Coach.
+
