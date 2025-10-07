@@ -28,7 +28,7 @@ jobs:
         run: swift --version
 
       - name: Lint OpenAPI (Spectral)
-        uses: stoplightio/spectral-action@v0.10.3
+        uses: stoplightio/spectral-action@v0.8.13
         with:
           file_glob: openapi/**/*.yaml
 

@@ -459,3 +459,68 @@ components:
         yUp: true
         version: scene-v1
         commands: []
+    SceneWithClipAndStroke:
+      summary: Path with clipPath and stroke style
+      value:
+        page: { widthPt: 200, heightPt: 100, margins: { top: 10, left: 10, right: 10, bottom: 10 }, units: pt, yUp: true }
+        units: pt
+        yUp: true
+        version: scene-v1
+        commands:
+          - op: clipPath
+            path:
+              segments:
+                - { op: moveTo, x: 10, y: 10 }
+                - { op: lineTo, x: 190, y: 10 }
+                - { op: lineTo, x: 190, y: 90 }
+                - { op: lineTo, x: 10, y: 90 }
+                - { op: closePath }
+            fillRule: nonzero
+          - op: path
+            path:
+              segments:
+                - { op: moveTo, x: 20, y: 20 }
+                - { op: lineTo, x: 180, y: 80 }
+            style:
+              stroke: { r: 0, g: 0, b: 0, a: 1 }
+              lineWidth: 2
+    SceneWithImageAndGradient:
+      summary: Image draw with linear gradient fill on a shape
+      value:
+        page: { widthPt: 200, heightPt: 100, margins: { top: 10, left: 10, right: 10, bottom: 10 }, units: pt, yUp: true }
+        units: pt
+        yUp: true
+        version: scene-v1
+        resources:
+          images:
+            - { id: img1, url: https://example.com/image.png, width: 64, height: 64, hash: deadbeef }
+          paints:
+            - id: grad1
+              kind: linearGradient
+              x1: 0
+              y1: 0
+              x2: 200
+              y2: 0
+              stops:
+                - { offset: 0, color: { r: 1, g: 0, b: 0, a: 1 } }
+                - { offset: 1, color: { r: 0, g: 0, b: 1, a: 1 } }
+        commands:
+          - op: image
+            imageRef: img1
+            x: 20
+            y: 20
+            width: 64
+            height: 64
+            opacity: 1
+            blendMode: normal
+          - op: path
+            path:
+              segments:
+                - { op: moveTo, x: 10, y: 10 }
+                - { op: lineTo, x: 190, y: 10 }
+                - { op: lineTo, x: 190, y: 20 }
+                - { op: lineTo, x: 10, y: 20 }
+                - { op: closePath }
+            style:
+              fill:
+                paintRef: grad1
