@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -13,9 +13,9 @@ let package = Package(
     ],
     dependencies: [
         // Apple Swift OpenAPI Generator (plugin)
-        .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.8.0"),
+        .package(url: "https://github.com/apple/swift-openapi-generator.git", from: "1.5.0"),
         // OpenAPI runtime + URLSession transport
-        .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.7.0"),
+        .package(url: "https://github.com/apple/swift-openapi-runtime.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession.git", from: "1.0.0"),
         // SwiftNIO (pure NIO server)
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.84.0")
