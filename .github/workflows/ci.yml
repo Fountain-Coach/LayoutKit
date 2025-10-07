@@ -27,6 +27,23 @@ jobs:
       - name: Swift version
         run: swift --version
 
+      - name: Lint OpenAPI (Spectral)
+        uses: stoplightio/spectral-action@v0.10.3
+        with:
+          file_glob: openapi/**/*.yaml
+
+      - name: Build OpenAPI docs (ReDocly)
+        run: |
+          npm install -g @redocly/cli@latest
+          mkdir -p build
+          redocly build-docs openapi/layoutkit.yaml -o build/layoutkit.html
+
+      - name: Upload OpenAPI docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-docs
+          path: build/layoutkit.html
+
       - name: Build (triggers OpenAPI generation)
         run: swift build -v
 

@@ -34,6 +34,15 @@ public struct DefaultHandlers: APIProtocol, Sendable {
         return .ok(.init(body: .json(apiScene)))
     }
 
+    // POST /scene/validate
+    public func validateScene(
+        _ input: Operations.validateScene.Input
+    ) async throws -> Operations.validateScene.Output {
+        // For now, accept any Scene shape (schema-validated by generator types)
+        _ = input
+        return .noContent
+    }
+
     // Map core Scene -> generated Components.Schemas.Scene
     private func toAPI(_ scene: LayoutKit.Scene) -> Components.Schemas.Scene {
         let apiPage = Components.Schemas.PageSpec(
