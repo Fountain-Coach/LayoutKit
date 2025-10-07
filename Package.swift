@@ -55,5 +55,11 @@ let package = Package(
             ]
         ),
         .testTarget(name: "LayoutKitTests", dependencies: ["LayoutKit"]) 
+        ,
+        .testTarget(
+            name: "LayoutKitAPITests",
+            dependencies: ["LayoutKitAPI"],
+            path: "Tests/LayoutKitAPITests"
+        )
     ]
 )
